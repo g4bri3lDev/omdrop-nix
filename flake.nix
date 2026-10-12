@@ -38,7 +38,10 @@
                 self.nixosModules.default
                 {
                   boot.loader.grub.enable = false;
-                  fileSystems."/".device = "none";
+                  fileSystems."/" = {
+                    device = "none";
+                    fsType = "tmpfs";
+                  };
                   system.stateVersion = "26.05";
                   networking.networkmanager.enable = true;
                   hardware.bluetooth.enable = true;
@@ -66,6 +69,9 @@
             assert good.config.networking.firewall.interfaces.awdl0.allowedTCPPorts == [ 8771 ];
             assert builtins.elem "interface-name:awdlibss0" good.config.networking.networkmanager.unmanaged;
             assert good.config.environment.etc."omdrop/allow-untested".text == "1\n";
+            assert
+              !(good.options.security.polkit ? enablePkexecWrapper)
+              || good.config.security.wrappers.pkexec.enable;
             assert rejected { networking.networkmanager.enable = nixpkgs.lib.mkForce false; };
             assert rejected { hardware.bluetooth.enable = nixpkgs.lib.mkForce false; };
             assert rejected { security.polkit.enable = nixpkgs.lib.mkForce false; };

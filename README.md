@@ -6,8 +6,8 @@ for [omdrop](https://github.com/brentkearney/omdrop-plugin) with the
 AWDL in userspace on Wi-Fi cards that aren't Apple's.
 
 Status: experimental. Sending and receiving with an iPhone work on an Intel
-AX200 (`iwlwifi`, exclusive mode) under NixOS 26.05 with Plasma 6. Other cards
-are untried here.
+AX200 (`iwlwifi`, exclusive mode) with Plasma 6, under NixOS 26.05 (kernel
+6.19) and 26.11 as of October 2026 (kernel 7.2). Other cards are untried here.
 
 ## Use
 
@@ -35,19 +35,29 @@ omdrop doctor        # what, if anything, is in the way
 
 Received files land in `~/Downloads`.
 
+### Plasma
+
+With Plasma 6 enabled, files in Dolphin get a "Send via AirDrop" entry in
+their context menu. It opens a window that lists nearby devices by name as
+they answer, which takes up to twenty seconds, and sends to the one you
+choose. The window turns omdrop on when it is off, after asking, and off
+again when it closes. The launcher gets "AirDrop: Receive for 10 Minutes".
+
 ## Options
 
 | Option | Default | |
 |---|---|---|
 | `programs.omdrop.enable` | `false` | Install omdrop and the backend, and configure the system for them. |
+| `programs.omdrop.kde.enable` | Plasma 6 enabled | The Dolphin entry, its window and the launcher entry. |
 | `programs.omdrop.openFirewall` | `true` | Open TCP 8771 on `awdl0` only. |
 | `programs.omdrop.allowUntested` | `false` | Run on a Wi-Fi card whose driver has no tested profile. |
 | `programs.omdrop.extraProfiles` | `""` | Lines for `/etc/omdrop/owl-profiles`, read before the packaged table. |
-| `programs.omdrop.package`, `backendPackage` | this flake's | The two packages. |
+| `programs.omdrop.package`, `backendPackage`, `kde.package` | this flake's | The packages. |
 
 The module needs NetworkManager, Bluetooth and polkit, and says so at
 evaluation when one is off. It keeps NetworkManager away from `awdl0`, `mon0`
-and `awdlibss0`.
+and `awdlibss0`, and turns on pkexec's setuid wrapper where NixOS has made
+that a choice (26.11).
 
 ## What to expect
 
@@ -61,7 +71,7 @@ and `awdlibss0`.
 ## Development
 
 ```sh
-nix build .#omdrop-owl .#omdrop
+nix build .#omdrop-owl .#omdrop .#omdrop-kde
 nix flake check
 ```
 

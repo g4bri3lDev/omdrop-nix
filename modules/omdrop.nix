@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  options,
   pkgs,
   ...
 }:
@@ -80,6 +81,12 @@ in
       cfg.package
       cfg.backendPackage
     ];
+
+    # NixOS 26.11 made pkexec's setuid wrapper opt-in, and without it pkexec
+    # refuses to run at all.
+    security.polkit = lib.optionalAttrs (options.security.polkit ? enablePkexecWrapper) {
+      enablePkexecWrapper = true;
+    };
 
     # A managed awdl0 gets a randomised MAC and no IPv6 link-local, and
     # NetworkManager taking the monitor or ad-hoc interface for a Wi-Fi
