@@ -14,7 +14,7 @@ are untried here.
 ```nix
 {
   inputs.omdrop-nix = {
-    url = "github:<owner>/omdrop-nix";
+    url = "github:g4bri3lDev/omdrop-nix";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
