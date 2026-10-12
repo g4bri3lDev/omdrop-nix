@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AirDrop: Receive for 10 Minutes
+Comment=Become visible to nearby Apple devices and receive their files
+Icon=document-receive
+Exec=omdrop on
+Terminal=false
+Categories=Network;FileTransfer;
+Keywords=airdrop;omdrop;iphone;

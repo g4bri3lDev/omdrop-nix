@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Service
+MimeType=application/octet-stream;
+Actions=sendViaAirDrop
+X-KDE-Priority=TopLevel
+
+[Desktop Action sendViaAirDrop]
+Name=Send via AirDrop
+Icon=document-send
+Exec=omdrop-send %F

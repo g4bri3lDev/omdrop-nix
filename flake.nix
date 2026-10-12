@@ -15,6 +15,7 @@
       packagesFor = pkgs: rec {
         omdrop-owl = pkgs.callPackage ./pkgs/omdrop-owl { };
         omdrop = pkgs.callPackage ./pkgs/omdrop { inherit omdrop-owl; };
+        omdrop-kde = pkgs.callPackage ./pkgs/omdrop-kde { inherit omdrop; };
       };
     in
     {
@@ -60,6 +61,8 @@
               extraProfiles = "rtw88_8822be  untested  exclusive  station  no  no  Realtek RTL8822BE";
             };
           };
+
+          plasma = evalWith { services.desktopManager.plasma6.enable = true; };
         in
         packagesFor pkgs
         // {
@@ -72,6 +75,10 @@
             assert
               !(good.options.security.polkit ? enablePkexecWrapper)
               || good.config.security.wrappers.pkexec.enable;
+            assert
+              !(builtins.elem good.config.programs.omdrop.kde.package good.config.environment.systemPackages);
+            assert builtins.elem plasma.config.programs.omdrop.kde.package
+              plasma.config.environment.systemPackages;
             assert rejected { networking.networkmanager.enable = nixpkgs.lib.mkForce false; };
             assert rejected { hardware.bluetooth.enable = nixpkgs.lib.mkForce false; };
             assert rejected { security.polkit.enable = nixpkgs.lib.mkForce false; };

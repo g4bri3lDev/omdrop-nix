@@ -27,6 +27,25 @@ in
       description = "The omdrop command and receiver.";
     };
 
+    kde = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = config.services.desktopManager.plasma6.enable;
+        defaultText = lib.literalExpression "config.services.desktopManager.plasma6.enable";
+        description = ''
+          Add "Send via AirDrop" to Dolphin's menu for files, and a launcher
+          entry that receives for ten minutes.
+        '';
+      };
+
+      package = lib.mkOption {
+        type = lib.types.package;
+        default = pkgs.callPackage ../pkgs/omdrop-kde { omdrop = cfg.package; };
+        defaultText = lib.literalExpression "omdrop-kde from this flake, built against package";
+        description = "The send window and the two desktop entries.";
+      };
+    };
+
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -80,7 +99,10 @@ in
     environment.systemPackages = [
       cfg.package
       cfg.backendPackage
-    ];
+    ]
+    ++ lib.optional cfg.kde.enable cfg.kde.package;
+
+    environment.pathsToLink = lib.mkIf cfg.kde.enable [ "/share/kio/servicemenus" ];
 
     # NixOS 26.11 made pkexec's setuid wrapper opt-in, and without it pkexec
     # refuses to run at all.
