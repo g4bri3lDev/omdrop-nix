@@ -58,6 +58,7 @@
           good = evalWith {
             programs.omdrop = {
               allowUntested = true;
+              interface = "wlp7s0";
               extraProfiles = "rtw88_8822be  untested  exclusive  station  no  no  Realtek RTL8822BE";
             };
           };
@@ -72,6 +73,8 @@
             assert good.config.networking.firewall.interfaces.awdl0.allowedTCPPorts == [ 8771 ];
             assert builtins.elem "interface-name:awdlibss0" good.config.networking.networkmanager.unmanaged;
             assert good.config.environment.etc."omdrop/allow-untested".text == "1\n";
+            assert good.config.environment.etc."omdrop/infra-iface".text == "wlp7s0\n";
+            assert !((evalWith { }).config.environment.etc ? "omdrop/infra-iface");
             assert
               !(good.options.security.polkit ? enablePkexecWrapper)
               || good.config.security.wrappers.pkexec.enable;

@@ -49,6 +49,7 @@ again when it closes. The launcher gets "AirDrop: Receive for 10 Minutes".
 |---|---|---|
 | `programs.omdrop.enable` | `false` | Install omdrop and the backend, and configure the system for them. |
 | `programs.omdrop.kde.enable` | Plasma 6 enabled | The Dolphin entry, its window and the launcher entry. |
+| `programs.omdrop.interface` | first Wi-Fi interface | The interface AirDrop runs on. With two cards, name the one not carrying the network and Wi-Fi stays up. |
 | `programs.omdrop.openFirewall` | `true` | Open TCP 8771 on `awdl0` only. |
 | `programs.omdrop.allowUntested` | `false` | Run on a Wi-Fi card whose driver has no tested profile. |
 | `programs.omdrop.extraProfiles` | `""` | Lines for `/etc/omdrop/owl-profiles`, read before the packaged table. |

@@ -46,6 +46,19 @@ in
       };
     };
 
+    interface = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "wlp7s0";
+      description = ''
+        The Wi-Fi interface the backend runs AirDrop on, written to
+        {file}`/etc/omdrop/infra-iface`. Left unset, the backend takes the
+        first Wi-Fi interface it finds. On a machine with two cards, naming
+        the one that isn't carrying the network keeps Wi-Fi up while a card
+        in exclusive mode is visible.
+      '';
+    };
+
     openFirewall = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -122,6 +135,7 @@ in
     networking.firewall.interfaces.awdl0.allowedTCPPorts = lib.mkIf cfg.openFirewall [ 8771 ];
 
     environment.etc = {
+      "omdrop/infra-iface" = lib.mkIf (cfg.interface != null) { text = "${cfg.interface}\n"; };
       "omdrop/allow-untested" = lib.mkIf cfg.allowUntested { text = "1\n"; };
       "omdrop/owl-profiles" = lib.mkIf (cfg.extraProfiles != "") { text = cfg.extraProfiles; };
     };
