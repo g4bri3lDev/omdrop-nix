@@ -132,6 +132,20 @@ in
       "interface-name:awdlibss0"
     ];
 
+    # NixOS restarts wpa_supplicant whenever a Wi-Fi interface appears or
+    # goes, the backend's own two among them, and the restart disconnects
+    # every card: on a machine with a second one, the network dropped for
+    # some ten seconds at each start and stop. The rule lives with all other
+    # extra rules in one file, so these two skip to its end.
+    services.udev.extraRules = lib.mkMerge [
+      (lib.mkBefore ''
+        SUBSYSTEM=="net", KERNEL=="mon0|awdlibss0", GOTO="omdrop_owl_end"
+      '')
+      (lib.mkAfter ''
+        LABEL="omdrop_owl_end"
+      '')
+    ];
+
     networking.firewall.interfaces.awdl0.allowedTCPPorts = lib.mkIf cfg.openFirewall [ 8771 ];
 
     environment.etc = {

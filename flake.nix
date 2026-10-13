@@ -82,6 +82,16 @@
               !(builtins.elem good.config.programs.omdrop.kde.package good.config.environment.systemPackages);
             assert builtins.elem plasma.config.programs.omdrop.kde.package
               plasma.config.environment.systemPackages;
+            # The skip for the backend's interfaces has to surround every other
+            # extra rule, the wpa_supplicant restart among them.
+            assert
+              let
+                rules = good.config.services.udev.extraRules;
+                before = builtins.head (builtins.split "GOTO=\"omdrop_owl_end\"" rules);
+                after = builtins.elemAt (builtins.split "LABEL=\"omdrop_owl_end\"" rules) 2;
+                hasRestart = text: builtins.match ".*try-restart wpa_supplicant.*" text != null;
+              in
+              !(hasRestart before) && !(hasRestart after) && builtins.match "[[:space:]]*" after != null;
             assert rejected { networking.networkmanager.enable = nixpkgs.lib.mkForce false; };
             assert rejected { hardware.bluetooth.enable = nixpkgs.lib.mkForce false; };
             assert rejected { security.polkit.enable = nixpkgs.lib.mkForce false; };
