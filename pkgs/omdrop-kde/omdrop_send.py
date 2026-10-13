@@ -32,9 +32,9 @@ NOTIFY_SEND = os.environ.get("OMDROP_NOTIFY_SEND", "notify-send")
 ADDRESS = Qt.ItemDataRole.UserRole
 # A lookup that ends without a choice is run again after this long.
 SEARCH_AGAIN_MS = 1500
-HINT = (
-    "On the iPhone or Mac, set AirDrop to Everyone and keep the screen on. "
-    "Names take up to twenty seconds to arrive."
+LOOKING = (
+    "Looking for devices… On the iPhone or Mac, set AirDrop to Everyone and "
+    "keep the screen on. Names take up to twenty seconds to arrive."
 )
 
 
@@ -178,11 +178,13 @@ class SendDialog(QDialog):
         self.turned_on = True
         self.search()
 
-    def search(self):
+    def search(self, quiet=False):
+        """Look for devices. A repeat is quiet: it leaves the status line be."""
         self.state = "searching"
         self.devices.setEnabled(True)
         self.selection_changed()
-        self.show_status("Looking for devices… " + HINT, busy=True)
+        if not quiet:
+            self.show_status(LOOKING, busy=True)
         self.run(["peers", "-n", "--json", "--stream"], self.search_finished, self.peer_found)
 
     def peer_found(self, line):
@@ -199,6 +201,9 @@ class SendDialog(QDialog):
         if item is None:
             item = QListWidgetItem(QIcon.fromTheme("smartphone"), "")
             item.setData(ADDRESS, address)
+            # The first device replaces omdrop's advice on finding one.
+            if not self.devices.count() and self.busy.isVisible():
+                self.show_status(LOOKING, busy=True)
             self.devices.addItem(item)
         # A later answer without a name doesn't take away one already given.
         if name or not item.text():
@@ -214,7 +219,7 @@ class SendDialog(QDialog):
 
     def search_again(self):
         if self.state == "searching" and self.proc is None:
-            self.search()
+            self.search(quiet=True)
 
     def selection_changed(self):
         self.send_button.setEnabled(
@@ -246,19 +251,12 @@ class SendDialog(QDialog):
             self.show_status(f"Not sent: {reason}", busy=False)
             self.devices.setEnabled(True)
             self.selection_changed()
-            QTimer.singleShot(SEARCH_AGAIN_MS, self.search_again_after_failure)
+            # Quietly, so the list stays fresh and the reason stays on show.
+            QTimer.singleShot(SEARCH_AGAIN_MS, self.search_again)
             return
         self.notify(f"Sent {describe(self.files)} to {self.recipient}")
         self.state = "done"
         self.accept()
-
-    def search_again_after_failure(self):
-        """Keep the list fresh for another try, but leave the reason on show."""
-        if self.state == "searching" and self.proc is None:
-            self.run(["peers", "-n", "--json", "--stream"], self.search_finished_quietly, self.peer_found)
-
-    def search_finished_quietly(self, _code):
-        QTimer.singleShot(SEARCH_AGAIN_MS, self.search_again_after_failure)
 
     def fail(self, message):
         self.state = "failed"

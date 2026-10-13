@@ -154,6 +154,7 @@ class SendDialogTests(unittest.TestCase):
         self.assertFalse(d.send_button.isEnabled())
         (self.state / "nobody").unlink()
         self.assertTrue(self.wait(self.listed))
+        self.assertNotIn("No devices found yet.", d.status.text())
 
     def test_a_refused_send_says_why_and_can_be_tried_again(self):
         self.visible(True)
